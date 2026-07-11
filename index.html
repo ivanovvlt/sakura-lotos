@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Сакура и Лотос</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap');
+        body { 
+            margin:0; 
+            font-family:'Noto Sans SC',sans-serif; 
+            background: linear-gradient(135deg, #f0f7f0, #e8f5e8); 
+            color:#333; 
+            height:100vh;
+            overflow:hidden;
+        }
+        .header { 
+            padding:15px; 
+            text-align:center; 
+            background:rgba(255,255,255,0.95); 
+            box-shadow:0 2px 10px rgba(0,0,0,0.1);
+        }
+        .lotus { 
+            font-size: 110px; 
+            text-align:center; 
+            margin:20px 0; 
+            animation: bloom 5s ease-in-out infinite;
+        }
+        @keyframes bloom { 0%,100% { transform: scale(0.95); } 50% { transform: scale(1.08); } }
+        
+        .card { 
+            background:white; 
+            width:90%; 
+            max-width:380px; 
+            margin:20px auto; 
+            padding:35px 20px; 
+            border-radius:24px; 
+            box-shadow:0 10px 30px rgba(0,0,0,0.15); 
+            text-align:center; 
+        }
+        .hanzi { font-size:78px; margin:15px 0; }
+        .pinyin { font-size:24px; color:#2e8b57; margin:12px 0; }
+        .meaning { font-size:19px; color:#444; margin-top:8px; }
+        
+        .controls { text-align:center; margin:25px 0; }
+        button { 
+            padding:14px 24px; 
+            margin:6px; 
+            border-radius:14px; 
+            font-size:16px; 
+            border:none;
+        }
+        .show { background:#2196F3; color:white; }
+        .next { background:#4CAF50; color:white; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌿 Сакура и Лотос</h1>
+        <select id="hskFilter" onchange="filterWords()">
+            <option value="all">Все HSK</option>
+            <option value="1">HSK 1</option>
+            <option value="2">HSK 2</option>
+            <option value="3">HSK 3</option>
+            <option value="4">HSK 4</option>
+        </select>
+    </div>
+
+    <main style="padding:20px; text-align:center;">
+        <div class="lotus">🌸</div>
+        
+        <div class="card" id="flashcard">
+            <div class="hanzi" id="hanzi">你</div>
+            <div class="pinyin" id="pinyin"></div>
+            <div class="meaning" id="meaning"></div>
+        </div>
+
+        <div class="controls">
+            <button class="show" onclick="showHint()">Показать пиньинь + перевод</button>
+            <button class="next" onclick="nextCard()">Следующая карточка →</button>
+        </div>
+    </main>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
+
+        let allWords = [
+            { hanzi: "你", pinyin: "nǐ", meaning: "ты", hsk: 1 },
+            { hanzi: "我", pinyin: "wǒ", meaning: "я", hsk: 1 },
+            { hanzi: "好", pinyin: "hǎo", meaning: "хорошо", hsk: 1 },
+            { hanzi: "谢谢", pinyin: "xièxie", meaning: "спасибо", hsk: 1 },
+            { hanzi: "再见", pinyin: "zàijiàn", meaning: "до свидания", hsk: 1 },
+            { hanzi: "喜欢", pinyin: "xǐhuan", meaning: "нравиться", hsk: 2 },
+            { hanzi: "漂亮", pinyin: "piàoliang", meaning: "красивый", hsk: 2 },
+            { hanzi: "今天", pinyin: "jīntiān", meaning: "сегодня", hsk: 2 },
+            { hanzi: "明天", pinyin: "míngtiān", meaning: "завтра", hsk: 2 },
+            { hanzi: "爱", pinyin: "ài", meaning: "любить", hsk: 2 }
+            // Добавляй новые слова сюда в таком же формате
+        ];
+
+        let currentWords = [];
+        let currentIndex = 0;
+
+        function filterWords() {
+            const level = document.getElementById('hskFilter').value;
+            if (level === "all") {
+                currentWords = [...allWords];
+            } else {
+                currentWords = allWords.filter(w => w.hsk == level);
+            }
+            currentIndex = 0;
+            showCard();
+        }
+
+        function showCard() {
+            if (currentWords.length === 0) return;
+            const card = currentWords[currentIndex];
+            document.getElementById('hanzi').textContent = card.hanzi;
+            document.getElementById('pinyin').textContent = "";
+            document.getElementById('meaning').textContent = "";
+        }
+
+        function showHint() {
+            const card = currentWords[currentIndex];
+            document.getElementById('pinyin').textContent = card.pinyin;
+            document.getElementById('meaning').textContent = card.meaning;
+        }
+
+        function nextCard() {
+            currentIndex = (currentIndex + 1) % currentWords.length;
+            showCard();
+        }
+
+        window.onload = () => {
+            filterWords();
+        };
+    </script>
+</body>
+</html>
